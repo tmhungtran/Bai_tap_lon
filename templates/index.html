@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống lưu trữ đám mây an toàn</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #6E94FF, #4DCCBD, #FFD93D, #FF6B6B);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .main-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+            width: 100%;
+            max-width: 1200px;
+            backdrop-filter: blur(8px);
+            animation: fadeIn 1s ease-out;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin: 0;
+        }
+
+        .header-links {
+            display: flex;
+            align-items: center;
+            font-size: 1.1em;
+            font-weight: 600;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        .header-links span {
+            color: #555;
+        }
+        .header-links a {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .header-links a:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+        .header-links button {
+            background: none;
+            border: none;
+            color: #007bff;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 1em;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .header-links button:hover {
+            color: #0056b3;
+            text-decoration: none;
+        }
+
+        .flash {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1em;
+            animation: slideIn 0.5s ease-out;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .flash.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .flash.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .flash.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 2fr; /* Upload block 1/3, Files block 2/3 */
+            }
+        }
+
+        .block {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .block:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .block h2 {
+            color: #444;
+            font-size: 1.8em;
+            margin-top: 0;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .upload-controls, .global-controls {
+            display: flex;
+            flex-direction: column; /* Stack elements vertically by default */
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .upload-controls input[type="file"],
+        .upload-controls input[type="password"],
+        .global-controls button {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+            box-sizing: border-box; /* Include padding in width */
+        }
+        .upload-controls input[type="file"]:focus,
+        .upload-controls input[type="password"]:focus {
+            border-color: #FF6B6B;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.2);
+        }
+        .upload-controls button,
+        .global-controls button {
+            background: linear-gradient(45deg, #FF6B6B, #FFD93D);
+            color: white;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            letter-spacing: 0.5px;
+        }
+        .upload-controls button:hover,
+        .global-controls button:hover {
+            background: linear-gradient(45deg, #FFD93D, #FF6B6B);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        #uploadStatus {
+            margin-top: 15px;
+            font-weight: 600;
+        }
+        #uploadStatus.success { color: #28a745; }
+        #uploadStatus.error { color: #dc3545; }
+
+        .global-controls {
+            flex-direction: row; /* Buttons side-by-side on larger screens */
+            flex-wrap: wrap;
+        }
+        .global-controls button {
+            flex-grow: 1; /* Allow buttons to grow */
+            min-width: 150px;
+            margin-right: 15px;
+        }
+        .network-status {
+            font-weight: 700;
+            font-size: 1.1em;
+            align-self: center; /* Vertically align with buttons */
+        }
+        .network-status.red-text { color: #dc3545; }
+        .network-status.green-text { color: #28a745; }
+
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+        }
+        .file-list li {
+            background-color: #f9f9f9;
+            margin-bottom: 15px;
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column; /* Stack on small screens */
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        .file-list li:hover {
+            background-color: #f0f8ff; /* Light blue on hover */
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+        }
+
+        .file-info {
+            flex-grow: 1;
+        }
+        .file-info .filename {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: #333;
+            word-break: break-all;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .file-info .uploader-name {
+            font-size: 0.9em;
+            color: #777;
+            display: block;
+        }
+
+        .file-list li .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px; /* Space between info and actions on small screens */
+        }
+        @media (min-width: 600px) {
+            .file-list li {
+                flex-direction: row; /* Row on larger screens */
+                justify-content: space-between;
+                align-items: center;
+            }
+            .file-list li .actions {
+                margin-top: 0; /* Remove top margin when in row */
+            }
+        }
+
+        .file-list li .actions input[type="password"] {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95em;
+            flex-grow: 1;
+            min-width: 120px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .file-list li .actions input[type="password"]:focus {
+            border-color: #6BFFB8;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(107, 255, 184, 0.2);
+        }
+
+        .file-list li .actions button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+        .file-list li button.download-btn {
+            background: linear-gradient(45deg, #28a745, #6BFFB8);
+            color: white;
+        }
+        .file-list li button.download-btn:hover {
+            background: linear-gradient(45deg, #6BFFB8, #28a745);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+        }
+        .file-list li button.delete-btn {
+            background: linear-gradient(45deg, #dc3545, #FF6B6B);
+            color: white;
+        }
+        .file-list li button.delete-btn:hover {
+            background: linear-gradient(45deg, #FF6B6B, #dc3545);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+        }
+
+        @media (max-width: 480px) {
+            .login-container, .register-container, .main-container {
+                padding: 20px;
+                border-radius: 15px;
+            }
+            h1 { font-size: 1.8em; }
+            .form-group input, button { padding: 10px; font-size: 0.9em; }
+            .flash { font-size: 0.85em; }
+            .header-links { font-size: 0.9em; }
+            .block h2 { font-size: 1.5em; }
+            .file-list li { padding: 12px; }
+            .file-list li .actions input[type="password"],
+            .file-list li .actions button { padding: 8px; font-size: 0.9em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-section">
+            <h1>Cloud An Toàn</h1>
+            <div class="header-links">
+                <span id="welcomeMessage"></span>
+                <span>|</span>
+                <a href="{{ url_for('register') }}">Đăng ký</a>
+                <span>|</span>
+                <form action="{{ url_for('logout') }}" method="POST" style="display:inline;">
+                    <button type="submit">Đăng xuất</button>
+                </form>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="flash {{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <div class="content-grid">
+            <div class="block upload-block">
+                <h2>Upload Video</h2>
+                <form id="uploadForm" enctype="multipart/form-data" class="upload-controls">
+                    <input type="file" name="video" accept="video/*" required>
+                    <input type="password" name="download_password_upload" placeholder="Đặt mật khẩu tải về cho file" required>
+                    <button type="submit">Upload File</button>
+                </form>
+                <p id="uploadStatus"></p>
+                
+                <h2>Điều khiển hệ thống</h2>
+                <div class="global-controls">
+                    <button id="refreshListBtn">Làm mới danh sách</button>
+                    <button id="toggleNetworkErrorBtn">Toggle Giả lập lỗi mạng</button>
+                    <span id="networkErrorStatus" class="network-status"></span>
+                </div>
+            </div>
+
+            <div class="block files-block">
+                <h2>Danh sách các file đã Upload</h2>
+                <ul id="fileList" class="file-list">
+                    <li>Đang tải danh sách file...</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hàm fetch username để hiển thị tin nhắn chào mừng
+        fetch('/get_username')
+            .then(response => response.json())
+            .then(data => {
+                const welcomeMessage = document.getElementById('welcomeMessage');
+                if (data.username) {
+                    welcomeMessage.textContent = `Xin chào, ${data.username}!`;
+                } else {
+                    welcomeMessage.textContent = 'Bạn chưa đăng nhập';
+                }
+            })
+            .catch(error => console.error('Error fetching username:', error));
+
+
+        // Xử lý Form Upload
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const statusElement = document.getElementById('uploadStatus');
+            statusElement.textContent = 'Đang upload...';
+            statusElement.className = ''; // Reset class
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                statusElement.textContent = data.message;
+                if (data.status === 'success') {
+                    statusElement.classList.add('success');
+                    loadFiles(); // Tải lại danh sách file
+                    this.reset(); // Xóa form
+                } else {
+                    statusElement.classList.add('error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                statusElement.textContent = 'Có lỗi xảy ra khi upload.';
+                statusElement.classList.add('error');
+            }
+        });
+
+        // Tải danh sách file từ server
+        async function loadFiles() {
+            const fileListElement = document.getElementById('fileList');
+            fileListElement.innerHTML = '<li>Đang tải danh sách file...</li>'; // Show loading state
+
+            try {
+                const response = await fetch('/files');
+                const files = await response.json();
+
+                fileListElement.innerHTML = ''; // Clear loading state
+
+                if (files.length === 0) {
+                    fileListElement.innerHTML = '<li>Chưa có file nào được upload.</li>';
+                    return;
+                }
+
+                files.forEach(file => {
+                    const li = document.createElement('li');
+                    
+                    const fileInfoDiv = document.createElement('div');
+                    fileInfoDiv.className = 'file-info';
+
+                    const filenameSpan = document.createElement('span');
+                    filenameSpan.className = 'filename';
+                    filenameSpan.textContent = file.filename;
+                    fileInfoDiv.appendChild(filenameSpan);
+
+                    const uploaderSpan = document.createElement('span');
+                    uploaderSpan.className = 'uploader-name';
+                    uploaderSpan.textContent = `Người upload: ${file.uploader}`;
+                    fileInfoDiv.appendChild(uploaderSpan);
+
+                    li.appendChild(fileInfoDiv);
+
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'actions';
+
+                    const passwordInput = document.createElement('input');
+                    passwordInput.type = 'password';
+                    passwordInput.placeholder = 'Mật khẩu tải về';
+                    passwordInput.id = `password-${file.filename}`;
+                    actionsDiv.appendChild(passwordInput);
+
+                    const downloadButton = document.createElement('button');
+                    downloadButton.textContent = 'Download';
+                    downloadButton.className = 'download-btn';
+                    downloadButton.onclick = function() {
+                        downloadFile(file.filename);
+                    };
+                    actionsDiv.appendChild(downloadButton);
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Xóa';
+                    deleteButton.className = 'delete-btn';
+                    deleteButton.onclick = function() {
+                        deleteFile(file.filename); 
+                    };
+                    actionsDiv.appendChild(deleteButton);
+
+                    li.appendChild(actionsDiv);
+                    fileListElement.appendChild(li);
+                });
+
+            } catch (error) {
+                console.error('Error loading files:', error);
+                fileListElement.innerHTML = '<li>Lỗi khi tải danh sách file. Vui lòng thử lại.</li>';
+            }
+        }
+
+        // Tải file đã mã hóa về và giải mã
+        async function downloadFile(filename) {
+            const passwordInput = document.getElementById(`password-${filename}`);
+            const downloadPassword = passwordInput.value;
+
+            if (!downloadPassword) {
+                alert('Vui lòng nhập mật khẩu tải về.');
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('filename', filename);
+                formData.append('download_password', downloadPassword);
+
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                    alert(`File "${filename}" đã được tải xuống thành công.`);
+                } else {
+                    const errorData = await response.json();
+                    alert(`Lỗi khi tải xuống: ${errorData.message}`);
+                }
+            } catch (error) {
+                console.error('Error downloading file:', error);
+                alert('Có lỗi xảy ra khi tải xuống file.');
+            }
+        }
+
+        // Xóa file
+        async function deleteFile(filename) {
+            const loginPasswordConfirmation = prompt(`Vui lòng nhập mật khẩu đăng nhập của bạn để xác nhận xóa file "${filename}":`);
+            
+            if (loginPasswordConfirmation === null || loginPasswordConfirmation.trim() === '') {
+                alert('Việc xóa đã bị hủy hoặc mật khẩu xác nhận không được cung cấp.');
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('filename', filename);
+                formData.append('login_password_confirmation', loginPasswordConfirmation);
+
+                const response = await fetch('/delete_file', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.status === 'success' || data.status === 'warning') {
+                    alert(data.message);
+                    loadFiles(); // Tải lại danh sách file sau khi xóa thành công
+                } else {
+                    alert(`Lỗi khi xóa file: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Error deleting file:', error);
+                alert('Có lỗi xảy ra khi xóa file.');
+            }
+        }
+
+        // Bật/Tắt giả lập lỗi mạng
+        async function toggleNetworkError() {
+            try {
+                const response = await fetch('/toggle_network_error', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                updateNetworkErrorStatus(data.enabled);
+            } catch (error) {
+                console.error('Error toggling network error:', error);
+                alert('Có lỗi xảy ra khi bật/tắt giả lập lỗi mạng.');
+            }
+        }
+
+        // Cập nhật trạng thái giả lập lỗi mạng trên giao diện
+        function updateNetworkErrorStatus(enabled) {
+            const statusElement = document.getElementById('networkErrorStatus');
+            if (enabled) {
+                statusElement.textContent = 'Đang BẬT';
+                statusElement.className = 'network-status red-text';
+            } else {
+                statusElement.textContent = 'Đang TẮT';
+                statusElement.className = 'network-status green-text';
+            }
+        }
+
+        // Gắn sự kiện cho các nút điều khiển chung
+        document.getElementById('refreshListBtn').addEventListener('click', loadFiles);
+        document.getElementById('toggleNetworkErrorBtn').addEventListener('click', toggleNetworkError);
+
+        // Tải danh sách file và trạng thái lỗi mạng khi trang được tải
+        document.addEventListener('DOMContentLoaded', async () => {
+            loadFiles();
+            try {
+                const response = await fetch('/get_network_error_status');
+                const data = await response.json();
+                updateNetworkErrorStatus(data.enabled);
+            } catch (error) {
+                console.error('Error getting initial network error status:', error);
+                updateNetworkErrorStatus(true); // Default to enabled if status can't be fetched
+            }
+        });
+    </script>
+</body>
+</html>
